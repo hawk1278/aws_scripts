@@ -18,22 +18,20 @@ set_label(){
    return $TAG_VALUE
 }
 
-main(){
-  while getopts ":t:" opt; 
-  do
-    case $opt in
-      t)
-          TAG=$OPTARG
-          ;;
-      /?)
-          echo "Unknow option." >&2
-          exit 1
-          ;;
-      :)
-          echo "Option, t, requires an argument." >&2
-          exit 1
-          ;;
-    esac
-  done
-  echo set_label $TAG
-}
+while getopts ":t:" opt; 
+do
+   case $opt in
+     t)
+         TAG=$OPTARG
+         ;;
+     /?)
+         echo "Unknow option." >&2
+         exit 1
+         ;;
+     :)
+         echo "Option, t, requires an argument." >&2
+         exit 1
+         ;;
+   esac
+done
+echo set_label $TAG
