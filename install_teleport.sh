@@ -22,35 +22,28 @@ write_log INFO "Installing SSH teleport"
 write_log INFO "Golang URL is: $GOURL"
 write_log INFO "Teleport URL is $TELURL"
 
-get_go(){
-    if not curl $GOURL | tar -zxf - -C /usr/local; then
-        return 1
-    else
-        PATH=$PATH:/usr/local/go/bin:
-        export PATH
-    fi
-}
-
-get_teleport(){
-  if not curl -L $TELURL | tar -zxf - -C ~/ && cd /root/teleport/ && make install; then
-      return 1
-  fi
-}
-
-
 write_log INFO "Retrieving Golang"
-if ! get_go; then
+if ! curl $GOURL | tar -zxf - -C /usr/local; then
     write_log ERROR "Failed to install Golang"
     echo "Failed to install Golang"
+     exit 1
+else
+     if `grep -c  "PATH=$PATH:/usr/local/go/bin" ~/.bash_profile` -eq 0; then
+        echo "PATH=$PATH:/usr/local/go/bin" >> ~/.bash_profile
+        echo "export PATH" >> ~/.bash_profile
+     fi
+source ~/.bash_profile
 fi
 
 write_log INFO "Retriving SSH Teleport"
-if ! get_teleport
-    write_log ERROR "Failed to install SSH Teleport"
-    echo "Failed to install SSH Teleport"
-else
-    source ~/.bash_profile  
+curl -L $TELURL | tar -zxf - -C ~/ && cd /root/teleport/ && make install
+if [ $? -eq 0 ] 
+then
+    echo "Finished installing Teleport SSH."
     write_log INFO "Finished teleport install."
+else
+    echo "Error installing Teleport SSH."
+    write_log ERROR "Error installing Teleport SSH."
+    exit 1
 fi
-
 
