@@ -16,7 +16,7 @@ def lambda_handler():
     delete_on = datetime.date.today().strftime("%Y-%m-%d")
     filters = [
             {"Name": "tag-key", "Values":["DeleteOn"]},
-            {"Name": "tag-value", "Values":["2017-11-27"]}
+            {"Name": "tag-value", "Values":[delete_on]}
         ]
     try:
         account_ids.append(iam.get_user()["User"]["Arn"].split(":")[4])
@@ -24,7 +24,7 @@ def lambda_handler():
         account_ids.append(re.search(r'(arn:aws:sts::)([0-9]+)', str(e)).groups()[1])
 
     snapshot_response = ec2.describe_snapshots(OwnerIds=account_ids, Filters=filters)
-
+   
     for snapshot in snapshot_response["Snapshots"]:
         print "Deleting snapshot {0}".format(snapshot["SnapshotId"])
         ec2.delete_snapshot(SnapshotId=snapshot["SnapshotId"])
