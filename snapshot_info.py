@@ -9,18 +9,17 @@ def find_snapshots():
 Iterate through AWS regions and pull snapshots and show how old they are.
     """
     today = datetime.today()
-    client = boto3.client("ec2")
-    regions = client.describe_regions()
+    s = boto3.Session(profile_name="prod", region_name="us-east-1")
+    c = s.client("ec2")
+    regions = c.describe_regions()
     account_ids = list()
-    session = boto3.Session(profile_name="prod", region_name="us-east-1")
-    iam = session.client("iam")
+    iam = s.client("iam")
     try:
         account_ids.append(iam.get_user()["User"]["Arn"].split(":")[4])
     except Exception as e:
         account_ids.append(re.search(r'(arn:aws:sts::)([0-9]+)', str(e)).groups()[1])
 
     for region in regions["Regions"]:
-        #print region["RegionName"]
         session = boto3.Session(profile_name="prod", region_name=region["RegionName"])
         ec2 = session.client("ec2")        
         snapshot_response = ec2.describe_snapshots()
